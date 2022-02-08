@@ -39,7 +39,7 @@ const config = {
   arcVersion: 'init',
 
   // specific taikari version
-  taiVersion: '0.2',
+  taiVersion: '0.3',
 
   // pre-defined symbols
   libSymbols: {
@@ -441,7 +441,7 @@ function taiVersion() {
 }
 
 function taiSupported() {
-  return !!(config.libSymbols[taiVersion()]) == false;
+  return !(config.libSymbols[getArcaeaVersion()]) == false;
 }
 
 /**
