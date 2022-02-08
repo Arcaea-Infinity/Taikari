@@ -10,6 +10,9 @@
  *  0.2 (02/08/2022)
  *    - hook challenge for test
  *    - challenge server
+ *  0.3 (02/09/2022)
+ *    - supported armv7 devices
+ *    - fix pointer issue
  */
 
 const config = {
@@ -19,7 +22,7 @@ const config = {
     { name: 'captureSSL', enabled: false, func: hackCaptureSSL },
     { name: 'dumpCertficate', enabled: false, func: hackDumpCertificate },
     { name: 'challengeHook', enabled: false, func: hackChallengeHook },
-    { name: 'challengeServer', enabled: true, func: hackChallengeServer }
+    { name: 'challengeServer', enabled: false, func: hackChallengeServer }
   ],
 
   // folders
@@ -45,7 +48,13 @@ const config = {
       { name: 'libcocos2dcpp.so!easy_perform', proc: 0x122996c }, // curl_easy_perform also calling this
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x1537c18 },
       { name: 'libcocos2dcpp.so!OnlineManager::fetchUser', proc: 0x11f92cc }
-    ]
+    ],
+    '3.11.2c_1019305_armeabi-v7a': [
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xc19fbc },
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0xe5a664 }, // curl_easy_perform also calling this
+      { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0xc43af1 },
+      { name: 'libcocos2dcpp.so!OnlineManager::fetchUser', proc: 0xe2fba1 }
+    ],
   }
 };
 
@@ -66,7 +75,7 @@ const __console_error = console.error;
 
   // is supported
   if (!taiSupported()) {
-    console.log('taikari not supported this device or arcaea, sorry.');
+    console.log('taikari currently not supported this device or arcaea, sorry.');
     return;
   }
 
@@ -112,7 +121,7 @@ function hackDumpCertificate() {
 
         // Calc pointers
         let cert = blob.readPointer();
-        let length = blob.add(8).readULong();
+        let length = blob.add(Process.pointerSize).readULong();
         let bytes = cert.readByteArray(length);
 
         console.log('Certificate');
@@ -138,7 +147,7 @@ function hackCaptureSSL() {
 
     counter++;
 
-    // remove encoding
+    // remove gzip compress feature
     let replace = buffer.readUtf8String(length).replace('Accept-Encoding: deflate, gzip\r\n', '');
     let newBuffer = Memory.allocUtf8String(replace);
 
@@ -175,7 +184,7 @@ function hackChallengeHook() {
   if (!config.useNative) {
     console.error('challenge hook requires libtaikari.so!');
     console.error('please enable \'useNative\' from taikari.js');
-    console.error('then copy the libtaikari.so to \'/system/lib64/\'.');
+    console.error(`then copy the libtaikari.so to \'${resFolder('library')}\'.`);
     return;
   }
 
@@ -403,13 +412,9 @@ function hackChallengeServer() {
 
             try {
               Java.perform(_ => {
-                _taskTable[_taskname].response.send(200, JSON.stringify({
-                  status: 0,
-                  content: {
-                    challenge: data
-                  }
-                }));
-                _taskTable[_taskname].response.close();
+                let _response = _taskTable[_taskname].response;
+                _response.send(200, JSON.stringify({ status: 0, content: { challenge: data } }));
+                _response.close();
               })
             } catch (e) {
               console.log(e.stack);
@@ -436,7 +441,7 @@ function taiVersion() {
 }
 
 function taiSupported() {
-  return config.libSymbols[taiVersion()] != 'undefined';
+  return !!(config.libSymbols[taiVersion()]) == false;
 }
 
 /**
@@ -450,7 +455,7 @@ function taiSupported() {
 function onlineManagerSendHttp(lpthis, url, headers = '', method = 'GET', body = '') {
 
   // native help function
-  let _helpfunc = Module.getBaseAddress('libtaikari.so').add(0x13b7c);
+  let _helpfunc = libSymbol('libtaikari.so!sendHttpRequest');
   _helpfunc = new NativeFunction(_helpfunc, 'int64', ['pointer', 'pointer', 'pointer', 'int', 'pointer', 'pointer']);
 
   // send function
@@ -506,7 +511,7 @@ function libSymbol(name) {
   config.libSymbols[config.arcVersion].forEach((def) => {
     if (def.name == name) _procAddress = def.proc;
   });
-
+  
   if (_procAddress != 0) return _moduleBase.add(_procAddress);
   return null;
 }
@@ -554,7 +559,7 @@ function curlParseSlist(lpslist) {
 
   let _slist = lpslist;
   let _data = _slist.readPointer();
-  let _next = _slist.add(8).readPointer();
+  let _next = _slist.add(Process.pointerSize).readPointer();
   let _result = [];
 
   // enumerate the linked table
@@ -564,7 +569,7 @@ function curlParseSlist(lpslist) {
     // next
     _slist = _next;
     _data = _slist.readPointer();
-    _next = _slist.add(8).readPointer();
+    _next = _slist.add(Process.pointerSize).readPointer();
   }
 
   // dont forget the last one
