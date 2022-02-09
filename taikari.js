@@ -19,13 +19,18 @@
 
 const config = {
 
+  // taikari version
+  taiVersion: '0.4',
+
   // hacktools
   hackTools: [
     { name: 'captureSSL', enabled: false, func: hackCaptureSSL },
     { name: 'dumpCertficate', enabled: false, func: hackDumpCertificate },
     { name: 'hookOnlineManagerCtor', enabled: false, func: hackOnlineManagerCtor },
     { name: 'challengeHookTest', enabled: false, func: hackChallengeHookTest },
-    { name: 'challengeServer', enabled: false, func: hackChallengeServer }
+    { name: 'challengeServer', enabled: false, func: hackChallengeServer },
+    { name: 'pretendArcVersion', enabled: false, func: hackPretendArcVersion },
+    { name: 'pretendDeviceId', enabled: false, func: hackPretendDeviceId },
   ],
 
   // folders
@@ -44,8 +49,9 @@ const config = {
   // specific arcaea version
   arcVersion: 'init',
 
-  // specific taikari version
-  taiVersion: '0.4',
+  // pretend 
+  pretendDeviceId: 'ffffffff',
+  pretendArcVersion: '6.1.6c (Taikari)',
 
   // pre-defined symbols
   libSymbols: {
@@ -198,6 +204,40 @@ function hackCaptureSSL() {
 }
 
 /**
+ * pretend arcara version
+ */
+function hackPretendArcVersion() {
+
+  console.log('attaching [libcocos2dcpp.so!Java_low_moe_AppActivity_setAppVersion]');
+  Interceptor.attach(libSymbol('libcocos2dcpp.so!Java_low_moe_AppActivity_setAppVersion'), {
+
+    onEnter: (args) => {
+      // replacing the argument
+      args[2] = jniNewStringUTF(args[0],
+        Memory.allocUtf8String(config.pretendArcVersion));
+    }
+
+  });
+}
+
+/**
+ * pretend arcaea device id
+ */
+function hackPretendDeviceId() {
+
+  console.log('attaching [libcocos2dcpp.so!Java_low_moe_AppActivity_setDeviceId]');
+  Interceptor.attach(libSymbol('libcocos2dcpp.so!Java_low_moe_AppActivity_setDeviceId'), {
+
+    onEnter: (args) => {
+      // replacing the argument
+      args[2] = jniNewStringUTF(args[0],
+        Memory.allocUtf8String(config.pretendDeviceId));
+    }
+
+  });
+}
+
+/**
  * hook online manager constructor
  */
 function hackOnlineManagerCtor() {
@@ -210,6 +250,7 @@ function hackOnlineManagerCtor() {
       global.lpOnlineManager = args[0];
       console.info(`lpOnlineManager = ${args[0]}`);
     }
+
   });
 }
 
@@ -300,6 +341,7 @@ function hackChallengeServer() {
     }, 'int', ['pointer', 'int']));
 
   // attach libcocos2dcpp.so!curl_easy_setopt
+  console.log('attach [libcocos2dcpp.so!curl_easy_setopt]');
   Interceptor.attach(libSymbol('libcocos2dcpp.so!curl_easy_setopt'), {
 
     onEnter: (args) => {
@@ -642,4 +684,18 @@ function parseJavaMap(map) {
     _array[_key.toString()] = map.get(_key).toString();
   }
   return _array;
+}
+
+/**
+ * New string utf
+ * @param env JNI env
+ * @param str string 
+ * @returns 
+ */
+function jniNewStringUTF(env, str) {
+  const _jniIndex = 167;
+  const _funcAddress = env.readPointer().add(_jniIndex * Process.pointerSize).readPointer();
+  let newStringUTF = new NativeFunction(_funcAddress, 'pointer', ['pointer', 'pointer']);
+
+  return newStringUTF(env, str);
 }
