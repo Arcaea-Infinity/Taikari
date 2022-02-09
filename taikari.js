@@ -94,7 +94,7 @@ Interceptor.attach(Module.findExportByName('liblog.so', '__android_log_print'), 
 
     // load native helper
     if (config.useNative) {
-      Module.load(`${resFolder('library')}/libtaikari.so`);
+      Module.load(`${resFolder('library')}/${Process.arch}/libtaikari.so`);
       console.info('library \'libtaikari.so\' scuessfully loaded.');
     }
 
@@ -127,11 +127,11 @@ function hackDumpCertificate() {
   console.log('attaching [libcocos2dcpp.so!curl_easy_setopt]');
   Interceptor.attach(libSymbol('libcocos2dcpp.so!curl_easy_setopt'), {
 
-    onEnter: function (args) {
+    onEnter: (args) => {
 
       // CURLOPT_SSLCERT_BLOB
       if (args[1] == 0x9d63) {
-        let blob = ptr(args[2]);
+        let blob = args[2];
 
         // Calc pointers
         let cert = blob.readPointer();
@@ -140,6 +140,13 @@ function hackDumpCertificate() {
 
         console.log('Certificate');
         console.raw(hexdump(bytes));
+      }
+
+      // CURLOPT_KEYPASSWD
+      if (args[1] == 0x272a) {
+        console.log('Certificate Pwd');
+        console.log(args[2].readUtf8String());
+        return;
       }
     }
 
@@ -179,11 +186,11 @@ function hackCaptureSSL() {
   // traffic in
   console.log('attaching [libcocos2dcpp.so!SSL_read]');
   Interceptor.attach(libSymbol('libcocos2dcpp.so!SSL_read'), {
-    onEnter: function (args) {
+    onEnter: (args) => {
       this.buffer = ptr(args[1]);
     },
 
-    onLeave: function (ret) {
+    onLeave: (ret) => {
       let data = this.buffer.readUtf8String(ret.toInt32());
       console.raw(data, '\n=================================');
     }
@@ -214,8 +221,7 @@ function hackChallengeHookTest() {
   // assert native helper loaded
   if (!config.useNative) {
     console.error('challenge hook test requires libtaikari.so!');
-    console.error(`please copy the libtaikari.so to \'${resFolder('library')}\'.`);
-    console.error('then enable \'useNative\'');
+    console.error('please enable the \'useNative\'');
     return;
   }
 
@@ -229,7 +235,7 @@ function hackChallengeHookTest() {
   console.log('attaching [libcocos2dcpp.so!OnlineManager::fetchUser]');
   Interceptor.attach(libSymbol('libcocos2dcpp.so!OnlineManager::fetchUser'), {
 
-    onEnter: function (args) {
+    onEnter: (args) => {
 
       setTimeout(() => {
 
@@ -251,16 +257,14 @@ function hackChallengeServer() {
   // assert native helper loaded
   if (!config.useNative) {
     console.error('challenge server requires libtaikari.so!');
-    console.error(`please copy the libtaikari.so to \'${resFolder('library')}\'.`);
-    console.error('then enable \'useNative\'');
+    console.error('please enable the \'useNative\'');
     return;
   }
 
   // assert http dex loaded
-  if (!config.useNative) {
+  if (!config.useAsyncHttp) {
     console.error('challenge server requires jlhttp.dex!');
-    console.error(`please copy the libtaikari.so to \'${resFolder('library')}\'.`);
-    console.error('then enable \'useNative\'');
+    console.error('please enable the \'useAsyncHttp\'');
     return;
   }
 
@@ -298,7 +302,7 @@ function hackChallengeServer() {
   // attach libcocos2dcpp.so!curl_easy_setopt
   Interceptor.attach(libSymbol('libcocos2dcpp.so!curl_easy_setopt'), {
 
-    onEnter: function (args) {
+    onEnter: (args) => {
       // CURLOPT_HTTPHEADER
       if (args[1] == 0x2727) {
 
