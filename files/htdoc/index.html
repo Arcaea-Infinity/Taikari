@@ -1,0 +1,67 @@
+<html>
+
+<head>
+	<title>Challenge Generator</title>
+	<link rel="stylesheet" href="https://sindresorhus.com/github-markdown-css/github-markdown.css">
+</head>
+
+<body>
+	<article class="markdown-body">
+		<h3 id="taikari-x-random-challenge-api">Taikari X-Random-Challenge API</h3>
+		<p>ATTENTION! This API is for everyone, Please DO NOT abuse this service.</p>
+		<h3 id="endpoint-v1-generate-post-">GET /v1/generate</h3>
+		<table>
+			<thead>
+				<tr>
+					<th style="text-align:left">arguments</th>
+					<th style="text-align:left">description</th>
+					<th style="text-align:left">optional</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td style="text-align:left">method</td>
+					<td style="text-align:left">GET or POST</td>
+					<td style="text-align:left"><strong>NO</strong></td>
+				</tr>
+				<tr>
+					<td style="text-align:left">path</td>
+					<td style="text-align:left">request url including the domain</td>
+					<td style="text-align:left"><strong>NO</strong></td>
+				</tr>
+				<tr>
+					<td style="text-align:left">body</td>
+					<td style="text-align:left">post body</td>
+					<td style="text-align:left"><strong>YES, while the method is GET</strong></td>
+				</tr>
+			</tbody>
+		</table>
+		<h4 id="explain">Explain</h4>
+		<p>Generates an X-Random-Challenge string.</p>
+		<h4 id="return-value">Return value</h4>
+		<pre><code class="lang-cjson">{
+    <span class="hljs-string">"status"</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-string">"content"</span>: {
+        challenge: <span class="hljs-string">"xxxx"</span>
+    }
+}
+</code></pre>
+		<h4 id="error-codes">Error codes</h4>
+		<table>
+			<thead>
+				<tr>
+					<th style="text-align:left">status</th>
+					<th style="text-align:left">description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td style="text-align:left">0</td>
+					<td style="text-align:left">everything is OK</td>
+				</tr>
+			</tbody>
+		</table>
+	</article>
+</body>
+
+</html>
