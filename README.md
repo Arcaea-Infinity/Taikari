@@ -10,8 +10,12 @@ Taikari is intent on **destroying** the Arcaea world.
 | challengeHookTest | Test the challenge hook |
 | challengeServer | Challenge server over the HTTP |
 
+## Deploy
+ - Install frida-server following the official documentation.
+ - Copy the `files` folder to `/system/usr/` then renaming to `taikari`.
+
 ## Usage
-> Recommend to use Frida 15 with Android 7+.
+> Recommend to use Frida 15 and Android 7+.
 ```bash
 $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
   # -U (use USB device)
@@ -25,3 +29,7 @@ $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
 | :-------------- | :----------------- |
 | 3.11.2c_1019305 | arm64-v8a          |
 | 3.11.2c_1019305 | armeabi-v7a        |
+
+
+## License
+Licensed under `616 SB License`.
