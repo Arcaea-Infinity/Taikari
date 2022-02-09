@@ -15,6 +15,8 @@
  *    - fix pointer issue
  *  0.4 (02/09/2022)
  *    - better hook scheme
+ *    - pretend arcaea version
+ *    - pretend device id
  */
 
 const config = {
@@ -164,13 +166,13 @@ function hackDumpCertificate() {
  */
 function hackCaptureSSL() {
 
-  let pfunc = libSymbol('libcocos2dcpp.so!SSL_write');
-  let SSL_write = new NativeFunction(pfunc, 'int', ['pointer', 'pointer', 'int']);
+  let _sslWrite = libSymbol('libcocos2dcpp.so!SSL_write');
+  let _sslWriteOld = new NativeFunction(_sslWrite, 'int', ['pointer', 'pointer', 'int']);
   let counter = 1;
 
   // traffic out
   console.log('raplacing [libcocos2dcpp.so!SSL_write]');
-  Interceptor.replace(pfunc, new NativeCallback((ctx, buffer, length) => {
+  Interceptor.replace(_sslWrite, new NativeCallback((ctx, buffer, length) => {
 
     counter++;
 
@@ -185,7 +187,7 @@ function hackCaptureSSL() {
     }
 
     // write data to
-    return SSL_write(ctx, newBuffer, replace.length);
+    return _sslWriteOld(ctx, newBuffer, replace.length);
 
   }, 'int', ['pointer', 'pointer', 'int']));
 
@@ -280,10 +282,10 @@ function hackChallengeHookTest() {
 
       setTimeout(() => {
 
-        let result = onlineManagerSendHttp(global.lpOnlineManager,
+        let _result = onlineManagerSendHttp(global.lpOnlineManager,
           'https://arcapi-v2.lowiro.com/merikuri/17/lxnsnb');
 
-        console.log(result, '?');
+        console.log(_result, '?');
       }, 1000);
     }
 
