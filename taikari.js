@@ -59,7 +59,7 @@ const config = {
     '3.11.2c_1019305_armeabi-v7a': [
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xc19fbc },
       { name: 'libcocos2dcpp.so!easy_perform', proc: 0xe5a664 }, // curl_easy_perform also calling this
-      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x9e2cbc },
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x9e2cbd },
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0xc43af1 },
       { name: 'libcocos2dcpp.so!OnlineManager::fetchUser', proc: 0xe2fba1 }
     ],
