@@ -23,9 +23,9 @@ const config = {
   hackTools: [
     { name: 'captureSSL', enabled: false, func: hackCaptureSSL },
     { name: 'dumpCertficate', enabled: false, func: hackDumpCertificate },
-    { name: 'hookOnlineManagerCtor', enabled: true, func: hackOnlineManagerCtor },
+    { name: 'hookOnlineManagerCtor', enabled: false, func: hackOnlineManagerCtor },
     { name: 'challengeHookTest', enabled: false, func: hackChallengeHookTest },
-    { name: 'challengeServer', enabled: true, func: hackChallengeServer }
+    { name: 'challengeServer', enabled: false, func: hackChallengeServer }
   ],
 
   // folders
