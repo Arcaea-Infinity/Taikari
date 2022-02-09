@@ -2,7 +2,7 @@
  *  Taikari frida tool
  *    (C) TheSnowfield 
  *
- *  Usage: frida -U Arcaea -l taikari.js
+ *  Usage: frida -U -f "moe.low.arc" --no-pause -l taikari.js
  *
  *  0.1 (02/07/2022)
  *    - SSL traffic capturing
@@ -13,6 +13,8 @@
  *  0.3 (02/09/2022)
  *    - supported armv7 devices
  *    - fix pointer issue
+ *  0.4 (02/09/2022)
+ *    - better hook scheme
  */
 
 const config = {
@@ -21,8 +23,9 @@ const config = {
   hackTools: [
     { name: 'captureSSL', enabled: false, func: hackCaptureSSL },
     { name: 'dumpCertficate', enabled: false, func: hackDumpCertificate },
-    { name: 'challengeHook', enabled: false, func: hackChallengeHook },
-    { name: 'challengeServer', enabled: false, func: hackChallengeServer }
+    { name: 'hookOnlineManagerCtor', enabled: true, func: hackOnlineManagerCtor },
+    { name: 'challengeHookTest', enabled: false, func: hackChallengeHookTest },
+    { name: 'challengeServer', enabled: true, func: hackChallengeServer }
   ],
 
   // folders
@@ -35,23 +38,28 @@ const config = {
   useNative: true,
   useAsyncHttp: true,
 
+  // challenge server
+  challengeHttpPort: 23333,
+
   // specific arcaea version
   arcVersion: 'init',
 
   // specific taikari version
-  taiVersion: '0.3',
+  taiVersion: '0.4',
 
   // pre-defined symbols
   libSymbols: {
     '3.11.2c_1019305_arm64-v8a': [
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0x111caf4 },
       { name: 'libcocos2dcpp.so!easy_perform', proc: 0x122996c }, // curl_easy_perform also calling this
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x11f273c },
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x1537c18 },
       { name: 'libcocos2dcpp.so!OnlineManager::fetchUser', proc: 0x11f92cc }
     ],
     '3.11.2c_1019305_armeabi-v7a': [
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xc19fbc },
       { name: 'libcocos2dcpp.so!easy_perform', proc: 0xe5a664 }, // curl_easy_perform also calling this
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x9e2cbc },
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0xc43af1 },
       { name: 'libcocos2dcpp.so!OnlineManager::fetchUser', proc: 0xe2fba1 }
     ],
@@ -61,46 +69,51 @@ const config = {
 // save original functions
 const __console_log = console.log;
 const __console_error = console.error;
+console.log = (...msg) => __console_log(new Date().toLocaleString(), '[*]', msg);
+console.error = (...msg) => __console_error(new Date().toLocaleString(), '[!]', msg);
+console.info = (...msg) => __console_log(new Date().toLocaleString(), '[i]', msg);
+console.raw = (...msg) => __console_log(msg);
 
-// global initialize
-(() => {
-  console.log = (...msg) => __console_log(new Date().toLocaleString(), '[*]', msg);
-  console.error = (...msg) => __console_error(new Date().toLocaleString(), '[!]', msg);
-  console.info = (...msg) => __console_log(new Date().toLocaleString(), '[i]', msg);
-  console.raw = (...msg) => __console_log(msg);
+// start when cocos_android_app_init reached
+Interceptor.attach(Module.findExportByName('liblog.so', '__android_log_print'), {
 
-  // get version
-  config.arcVersion = getArcaeaVersion();
-  console.log(`current version is [${config.arcVersion}]`);
+  onEnter: (args) => {
 
-  // is supported
-  if (!taiSupported()) {
-    console.log('taikari currently not supported this device or arcaea, sorry.');
-    return;
-  }
+    let _logstr = args[2].readUtf8String();
+    if (_logstr != 'cocos_android_app_init') return;
 
-  // load native helper
-  if (config.useNative) {
-    Module.load(`${resFolder('library')}/libtaikari.so`);
-    console.info('library \'libtaikari.so\' scuessfully loaded.');
-  }
+    // get version
+    config.arcVersion = getArcaeaVersion();
+    console.log(`current version is [${config.arcVersion}]`);
 
-  // load compiled dex library
-  if (config.useAsyncHttp) {
-    Java.openClassFile(`${resFolder('library')}/jlhttp.dex`).load();
-    console.info('dex file \'jlhttp.dex\' scuessfully loaded.');
-  }
-
-  // apply hack tools where enabled
-  config.hackTools.forEach(tool => {
-    if (tool.enabled) {
-      tool.func();
-      console.info(`tool \'${tool.name}\' enabled.`);
+    // is supported
+    if (!taiSupported()) {
+      console.log('sorry, taikari currently not supported this device or arcaea.');
+      return;
     }
-  });
 
-})();
+    // load native helper
+    if (config.useNative) {
+      Module.load(`${resFolder('library')}/libtaikari.so`);
+      console.info('library \'libtaikari.so\' scuessfully loaded.');
+    }
 
+    // load compiled dex library
+    if (config.useAsyncHttp) {
+      Java.openClassFile(`${resFolder('library')}/jlhttp.dex`).load();
+      console.info('dex file \'jlhttp.dex\' scuessfully loaded.');
+    }
+
+    // apply hack tools where enabled
+    config.hackTools.forEach(tool => {
+      if (tool.enabled) {
+        tool.func();
+        console.info(`tool \'${tool.name}\' enabled.`);
+      }
+    });
+
+  }
+});
 
 ////// Hack Tools                                       
 /////////////////////////////////////////////////////////
@@ -109,6 +122,7 @@ const __console_error = console.error;
  * dump certificate
  */
 function hackDumpCertificate() {
+
   // hook curl_easy_setopt
   console.log('attaching [libcocos2dcpp.so!curl_easy_setopt]');
   Interceptor.attach(libSymbol('libcocos2dcpp.so!curl_easy_setopt'), {
@@ -177,14 +191,37 @@ function hackCaptureSSL() {
 }
 
 /**
- * challenge hook
+ * hook online manager constructor
  */
-function hackChallengeHook() {
-  // assert
+function hackOnlineManagerCtor() {
+
+  console.log('attaching [libcocos2dcpp.so!OnlineManager::OnlineManager]');
+  Interceptor.attach(libSymbol('libcocos2dcpp.so!OnlineManager::OnlineManager'), {
+
+    // save the pointer
+    onEnter: (args) => {
+      global.lpOnlineManager = args[0];
+      console.info(`lpOnlineManager = ${args[0]}`);
+    }
+  });
+}
+
+/**
+ * challenge hook test
+ */
+function hackChallengeHookTest() {
+
+  // assert native helper loaded
   if (!config.useNative) {
-    console.error('challenge hook requires libtaikari.so!');
-    console.error('please enable \'useNative\' from taikari.js');
-    console.error(`then copy the libtaikari.so to \'${resFolder('library')}\'.`);
+    console.error('challenge hook test requires libtaikari.so!');
+    console.error(`please copy the libtaikari.so to \'${resFolder('library')}\'.`);
+    console.error('then enable \'useNative\'');
+    return;
+  }
+
+  // assert hookOnlineManagerCtor is enabled
+  if (!checkIfEnabled('hookOnlineManagerCtor')) {
+    console.error('please enable the \'hookOnlineManagerCtor\'!');
     return;
   }
 
@@ -194,11 +231,11 @@ function hackChallengeHook() {
 
     onEnter: function (args) {
 
-      // save lpthis
-      this.lpthis = args[0];
-
       setTimeout(() => {
-        let result = onlineManagerSendHttp(this.lpthis, 'https://arcapi-v2.lowiro.com/merikuri/17/lxnsnb');
+
+        let result = onlineManagerSendHttp(global.lpOnlineManager,
+          'https://arcapi-v2.lowiro.com/merikuri/17/lxnsnb');
+
         console.log(result, '?');
       }, 1000);
     }
@@ -210,6 +247,22 @@ function hackChallengeHook() {
  * challenge server
  */
 function hackChallengeServer() {
+
+  // assert native helper loaded
+  if (!config.useNative) {
+    console.error('challenge server requires libtaikari.so!');
+    console.error(`please copy the libtaikari.so to \'${resFolder('library')}\'.`);
+    console.error('then enable \'useNative\'');
+    return;
+  }
+
+  // assert http dex loaded
+  if (!config.useNative) {
+    console.error('challenge server requires jlhttp.dex!');
+    console.error(`please copy the libtaikari.so to \'${resFolder('library')}\'.`);
+    console.error('then enable \'useNative\'');
+    return;
+  }
 
   // assert challengeHook is not enabled
   if (checkIfEnabled('challengeHook')) {
@@ -223,15 +276,14 @@ function hackChallengeServer() {
     return;
   }
 
+  // assert hookOnlineManagerCtor is enabled
+  if (!checkIfEnabled('hookOnlineManagerCtor')) {
+    console.error('please enable the \'hookOnlineManagerCtor\'!');
+    return;
+  }
+
   let _taskTable = {};
   let _taskIndex = 0;
-  let _lpOnlineManager;
-
-  // hook OnlineManager::fetchUser
-  console.log('attaching [libcocos2dcpp.so!OnlineManager::fetchUser]');
-  Interceptor.attach(libSymbol('libcocos2dcpp.so!OnlineManager::fetchUser'), {
-    onEnter: (args) => { _lpOnlineManager = args[0]; console.info(`_lpOnlineManager = ${args[0]}`); }
-  });
 
   // replace easy_perform
   console.log('replacing [libcocos2dcpp.so!easy_perform]');
@@ -337,8 +389,8 @@ function hackChallengeServer() {
     }
 
     // create a http server
-    console.log('http server listening on :23333. (= w =)Zzz');
-    let http = createHttpServer(23333, [
+    console.log(`http server listening on :${config.challengeHttpPort}. (= w =)Zzz`);
+    let http = createHttpServer(config.challengeHttpPort, [
       {
         path: '/',
         methods: ['GET'],
@@ -364,10 +416,6 @@ function hackChallengeServer() {
         path: '/v1/generate',
         methods: ['GET'],
         handler: (request, response) => {
-
-          // if not get _lpOnlineManager
-          if (!_lpOnlineManager)
-            throw new Error('please switch back to main menu again to get the pointer (user/me).');
 
           // append header
           response.getHeaders().add('Content-Type', 'application/json; charset=utf-8');
@@ -403,7 +451,7 @@ function hackChallengeServer() {
           }
 
           // send http request
-          onlineManagerSendHttp(_lpOnlineManager,
+          onlineManagerSendHttp(global.lpOnlineManager,
             _params['path'], `Task: ${_taskname}`, _params['method'],
             _params['method'] == 'POST' ? _params['body'] : '');
 
@@ -434,7 +482,7 @@ function hackChallengeServer() {
 /////////////////////////////////////////////////////////
 
 /**
- * Get taikati version
+ * Get taikari version
  */
 function taiVersion() {
   return config.taiVersion;
@@ -511,7 +559,7 @@ function libSymbol(name) {
   config.libSymbols[config.arcVersion].forEach((def) => {
     if (def.name == name) _procAddress = def.proc;
   });
-  
+
   if (_procAddress != 0) return _moduleBase.add(_procAddress);
   return null;
 }
