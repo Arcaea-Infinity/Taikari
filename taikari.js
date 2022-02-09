@@ -52,7 +52,7 @@ const config = {
   arcVersion: 'init',
 
   // pretend 
-  pretendDeviceId: 'ffffffff',
+  pretendDeviceId: 'ffffffffffffffff',
   pretendArcVersion: '6.1.6c (Taikari)',
 
   // pre-defined symbols

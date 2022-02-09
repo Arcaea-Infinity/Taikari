@@ -9,6 +9,8 @@ Taikari is intent on **destroying** the Arcaea world.
 | hookOnlineManagerCtor | An almost perfect hook scheme of OnlineManager. |
 | challengeHookTest | Test the challenge hook |
 | challengeServer | Challenge server over the HTTP |
+| pretendArcVersion | Set the fake arcaea version |
+| pretendDeviceId | Set the fake device id |
 
 ## Deploy
  - Install frida-server following the official documentation.
