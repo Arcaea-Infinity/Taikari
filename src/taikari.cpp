@@ -27,6 +27,20 @@ int64_t sendHttpRequest(online_manager_t cls, send_request_t func,
   return func(cls, _url, request_type, _tag_name, _callback, _extra_header, _post_body, 0);
 }
 
+size_t setFavoriteCharacter(online_manager_t cls, set_favorite_character_t func,
+                            size_t id)
+{
+  // check pointers
+  if (!cls)
+    return -100;
+
+  // create objects
+  auto _callback = std::function<void(void *, void *)>(responseCallback);
+
+  // call function
+  return func(cls, id, _callback);
+}
+
 void responseCallback(void *client, void *response)
 {
   // do nothing

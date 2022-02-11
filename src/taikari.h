@@ -24,6 +24,10 @@ typedef int64_t (*send_request_t)(online_manager_t cls,
                                   std::string post_body,
                                   bool zero);
 
+typedef size_t (*set_favorite_character_t)(online_manager_t cls,
+                                           std::size_t id,
+                                           std::function<void(void *, void *)> const &callback);
+
 /**
  * @brief Call online manager
  * 
@@ -38,6 +42,16 @@ typedef int64_t (*send_request_t)(online_manager_t cls,
 int64_t sendHttpRequest(online_manager_t cls, send_request_t func,
                         const char *url, request_type_t request_type,
                         const char *header, const char *post_body) asm("sendHttpRequest");
+
+/**
+ * @brief Call set favorite character
+ * @param cls
+ * @param func
+ * @param id
+ * @return
+ */
+size_t setFavoriteCharacter(online_manager_t cls, set_favorite_character_t func,
+                            size_t id) asm("setFavoriteCharacter");
 
 /**
  * @brief Result callback
