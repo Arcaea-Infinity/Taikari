@@ -1,5 +1,18 @@
-## Taikari
-Taikari is intent on **destroying** the Arcaea world.
+<table>
+  <tbody>
+  <tr>
+    <td style="text-align:left">
+      <img src="files/htdoc/favicon.png" width=60>
+    </td>
+    <td style="text-align:left">
+      <h2>Taikari</h2>
+      <h4>Taikari is intent on <strong>destroying</strong> the Arcaea world.</h4>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+![ver](https://img.shields.io/badge/taikari-v0.5.0-blue) ![arc](https://img.shields.io/badge/arcaea-3.11.2c-716dba)
 
 ## Hack Tool Sets
 | name | description |
