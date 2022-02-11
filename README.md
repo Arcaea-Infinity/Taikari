@@ -4,13 +4,13 @@ Taikari is intent on **destroying** the Arcaea world.
 ## Hack Tool Sets
 | name | description |
 | :--- | :---------- |
-| captureSSL     | Capture the SSL traffic print to screen |
-| dumpCertficate | Hex dump the latest P12 certificate |
+| captureSSL            | Capture the SSL traffic print to screen |
+| dumpCertficate        | Hex dump the latest P12 certificate |
 | hookOnlineManagerCtor | An almost perfect hook scheme of OnlineManager. |
-| challengeHookTest | Test the challenge hook |
-| challengeServer | Challenge server over the HTTP |
-| pretendArcVersion | Set the fake arcaea version |
-| pretendDeviceId | Set the fake device id |
+| challengeHookTest     | Test the challenge hook |
+| challengeServer       | Challenge server over the HTTP |
+| pretendArcVersion     | Set the fake arcaea version |
+| pretendDeviceId       | Set the fake device id |
 
 ## Deploy
  - Install frida-server following the official documentation.
