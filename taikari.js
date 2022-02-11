@@ -3,26 +3,9 @@
  *    (C) TheSnowfield 
  *
  *  Usage: frida -U -f "moe.low.arc" --no-pause -l taikari.js
- *
- *  0.1 (02/07/2022)
- *    - SSL traffic capturing
- *    - Dump SSL certificate
- *  0.2 (02/08/2022)
- *    - hook challenge for test
- *    - challenge server
- *  0.3 (02/09/2022)
- *    - supported armv7 devices
- *    - fix pointer issue
- *  0.4 (02/09/2022)
- *    - better hook scheme
- *    - pretend arcaea version
- *    - pretend device id
  */
 
 const config = {
-
-  // taikari version
-  taiVersion: '0.4',
 
   // hacktools
   hackTools: [
@@ -62,14 +45,14 @@ const config = {
       { name: 'libcocos2dcpp.so!easy_perform', proc: 0x122996c }, // curl_easy_perform also calling this
       { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x11f273c },
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x1537c18 },
-      { name: 'libcocos2dcpp.so!OnlineManager::fetchUser', proc: 0x11f92cc }
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x125226c }
     ],
     '3.11.2c_1019305_armeabi-v7a': [
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xc19fbc },
       { name: 'libcocos2dcpp.so!easy_perform', proc: 0xe5a664 }, // curl_easy_perform also calling this
       { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x9e2cbd },
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0xc43af1 },
-      { name: 'libcocos2dcpp.so!OnlineManager::fetchUser', proc: 0xe2fba1 }
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0xd3beb1 }
     ],
   }
 };
@@ -274,19 +257,16 @@ function hackChallengeHookTest() {
     return;
   }
 
-  // hook user me
-  console.log('attaching [libcocos2dcpp.so!OnlineManager::fetchUser]');
-  Interceptor.attach(libSymbol('libcocos2dcpp.so!OnlineManager::fetchUser'), {
+  // hook set favorite character
+  console.log('attaching [libcocos2dcpp.so!OnlineManager::setFavoriteCharacter]');
+  Interceptor.attach(libSymbol('libcocos2dcpp.so!OnlineManager::setFavoriteCharacter'), {
 
     onEnter: (args) => {
 
-      setTimeout(() => {
+      let _result = onlineManagerSendHttp(global.lpOnlineManager,
+        'https://arcapi-v2.lowiro.com/merikuri/17/lxnsnb');
 
-        let _result = onlineManagerSendHttp(global.lpOnlineManager,
-          'https://arcapi-v2.lowiro.com/merikuri/17/lxnsnb');
-
-        console.log(_result, '?');
-      }, 1000);
+      console.log('test result:', _result);
     }
 
   });
@@ -331,6 +311,7 @@ function hackChallengeServer() {
 
   let _taskTable = {};
   let _taskIndex = 0;
+  let _apiPrefix = ""; // https://arcapi-v2.lowiro.com/merikuri/17/
 
   // replace easy_perform
   console.log('replacing [libcocos2dcpp.so!easy_perform]');
@@ -373,10 +354,41 @@ function hackChallengeServer() {
         _taskTable[_taskIndex].resolve(_challenge);
         return;
       }
+
+      // CURLOPT_URL
+      if (args[1] == 0x2712) {
+
+        if (!_apiPrefix) {
+          let _urlstr = args[2].readUtf8String();
+
+          // match the result
+          let _match = _urlstr.match(/https:\/\/(\S.*?\/){3}/);
+          if (_match.length != 2) {
+            console.error(`error while detecting, preberly an invalid url. ${_urlstr}`);
+            return;
+          }
+
+          // set the result
+          _apiPrefix = _match[0];
+          console.log(`arcapi detected. ${_apiPrefix}`);
+        }
+
+        return;
+      }
+
     }
 
   });
 
+  // the online manager has not been
+  // constructed now, thus wait for 2s.
+  setTimeout(() => {
+    // arcapi prefix automatic detection
+    console.info('auto detecting arcapi...');
+    onlineManagerSetFavChar(global.lpOnlineManager, 1);
+  }, 2000);
+
+  // start the server
   Java.perform(() => {
 
     function createHttpServer(port, routes) {
@@ -500,8 +512,9 @@ function hackChallengeServer() {
 
           // send http request
           onlineManagerSendHttp(global.lpOnlineManager,
-            _params['path'], `Task: ${_taskname}`, _params['method'],
-            _params['method'] == 'POST' ? _params['body'] : '');
+            `${_apiPrefix}${decodeURIComponent(_params['path'])}`,
+            `Task: ${_taskname}`, _params['method'],
+            _params['method'] == 'POST' ? decodeURIComponent(_params['body']) : '');
 
           // wait for promise
           _promise.then((data) => {
@@ -528,13 +541,6 @@ function hackChallengeServer() {
 
 ////// Utils                                            
 /////////////////////////////////////////////////////////
-
-/**
- * Get taikari version
- */
-function taiVersion() {
-  return config.taiVersion;
-}
 
 function taiSupported() {
   return !(config.libSymbols[getArcaeaVersion()]) == false;
@@ -565,6 +571,22 @@ function onlineManagerSendHttp(lpthis, url, headers = '', method = 'GET', body =
 
   // call send http request
   return _helpfunc(lpthis, _callfunc, _url, _method, _headers, _postbody);
+}
+
+/**
+ * Set favirate character
+ */
+function onlineManagerSetFavChar(lpthis, cid) {
+
+  // native help function
+  let _helpfunc = libSymbol('libtaikari.so!setFavoriteCharacter');
+  _helpfunc = new NativeFunction(_helpfunc, 'int64', ['pointer', 'pointer', 'int']);
+
+  // calling function
+  let _callfunc = libSymbol('libcocos2dcpp.so!OnlineManager::setFavoriteCharacter');
+
+  // call set favorite character
+  return _helpfunc(lpthis, _callfunc, cid);
 }
 
 /**
