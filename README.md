@@ -12,7 +12,7 @@
   </tbody>
 </table>
 
-![ver](https://img.shields.io/badge/taikari-v0.5.0-blue) ![arc](https://img.shields.io/badge/arcaea-3.11.2c-716dba)
+![ver](https://img.shields.io/badge/taikari-v0.6.0-blue) ![arc](https://img.shields.io/badge/arcaea-3.12.0c-716dba)
 
 ## Hack Tool Sets
 | name | description |
@@ -44,6 +44,7 @@ $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
 | :-------------- | :----------------- |
 | 3.11.2c_1019305 | arm64-v8a          |
 | 3.11.2c_1019305 | armeabi-v7a        |
+| 3.12.0c_1020007 | arm64-v8a          |
 | 3.12.0c_1020007 | armeabi-v7a        |
 
 
