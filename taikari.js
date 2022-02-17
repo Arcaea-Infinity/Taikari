@@ -26,7 +26,7 @@ const config = {
 
   // libraries
   useNative: true,
-  useAsyncHttp: true,
+  useJLHttp: true,
 
   // challenge server
   challengeHttpPort: 23333,
@@ -67,6 +67,20 @@ const config = {
       { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0xbf1234 },
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x567064 },
       { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0xd463fc }
+    ],
+    '3.12.1c_1020010_armeabi-v7a': [
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0x6a946c },
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0x6e3fa8 }, // curl_easy_perform also calling this
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x38a0c1 },
+      { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x6fcf05 },
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x5F4CA9 }
+    ],
+    '3.12.1c_1020010_arm64-v8a': [
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xbc7dc4 },
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0xe711b0 }, // curl_easy_perform also calling this
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0xc583dc },
+      { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x8080cc },
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0xde3cc0 }
     ]
   }
 };
@@ -86,6 +100,7 @@ Interceptor.attach(Module.findExportByName('liblog.so', '__android_log_print'), 
 
     let _logstr = args[2].readUtf8String();
     if (_logstr != 'cocos_android_app_init') return;
+    console.raw('');
 
     // get version
     config.arcVersion = getArcaeaVersion();
@@ -104,7 +119,7 @@ Interceptor.attach(Module.findExportByName('liblog.so', '__android_log_print'), 
     }
 
     // load compiled dex library
-    if (config.useAsyncHttp) {
+    if (config.useJLHttp) {
       Java.openClassFile(`${resFolder('library')}/jlhttp.dex`).load();
       console.info('dex file \'jlhttp.dex\' scuessfully loaded.');
     }
@@ -299,9 +314,9 @@ function hackChallengeServer() {
   }
 
   // assert http dex loaded
-  if (!config.useAsyncHttp) {
+  if (!config.useJLHttp) {
     console.error('challenge server requires jlhttp.dex!');
-    console.error('please enable the \'useAsyncHttp\'');
+    console.error('please enable the \'useJLHttp\'');
     return;
   }
 
