@@ -44,6 +44,7 @@ $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
 | :-------------- | :----------------- |
 | 3.11.2c_1019305 | arm64-v8a          |
 | 3.11.2c_1019305 | armeabi-v7a        |
+| 3.12.0c_1020007 | armeabi-v7a        |
 
 
 ## License
