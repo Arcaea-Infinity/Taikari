@@ -54,6 +54,13 @@ const config = {
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0xc43af1 },
       { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0xd3beb1 }
     ],
+    '3.12.0c_1020007_armeabi-v7a': [
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0x41c264 },
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0x3bca58 }, // curl_easy_perform also calling this
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x364971 },
+      { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x3584c1 },
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x7b0009 }
+    ],
   }
 };
 
