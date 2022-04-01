@@ -11,9 +11,9 @@ const config = {
   hackTools: [
     { name: 'captureSSL', enabled: false, func: hackCaptureSSL },
     { name: 'dumpCertficate', enabled: false, func: hackDumpCertificate },
-    { name: 'hookOnlineManagerCtor', enabled: false, func: hackOnlineManagerCtor },
+    { name: 'hookOnlineManagerCtor', enabled: true, func: hackOnlineManagerCtor },
     { name: 'challengeHookTest', enabled: false, func: hackChallengeHookTest },
-    { name: 'challengeServer', enabled: false, func: hackChallengeServer },
+    { name: 'challengeServer', enabled: true, func: hackChallengeServer },
     { name: 'pretendArcVersion', enabled: false, func: hackPretendArcVersion },
     { name: 'pretendDeviceId', enabled: false, func: hackPretendDeviceId },
   ],
@@ -95,6 +95,13 @@ const config = {
       { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x69a380 },
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x8ba05c },
       { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0xbd898c }
+    ],
+    '3.12.6c_1032000_arm64-v8a': [ // not working
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xa43f64 },
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0xbf22a4 },
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0xd7a2b0 },
+      { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0xcb1088 },
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0xacc900 }
     ]
   }
 };
