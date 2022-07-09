@@ -110,12 +110,12 @@ const config = {
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x31b7a1 },
       { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x786a8d }
     ],
-    '4.0.1c_1050014_armeabi-v7a': [ // Todo: OnlineManager
-      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0x4e60f0 },
+    '4.0.1c_1050014_armeabi-v7a': [
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0x80d24c },
       { name: 'libcocos2dcpp.so!easy_perform', proc: 0x8263f4 },
-      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x4301c5 }, //not yet
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x3b7b6d }, 
       { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x6234b1 },
-      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x44d22d }
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x8853b9 }
     ]
   }
 };
