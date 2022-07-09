@@ -12,7 +12,7 @@
   </tbody>
 </table>
 
-![ver](https://img.shields.io/badge/taikari-v0.6.2-blue) ![arc](https://img.shields.io/badge/arcaea-3.12.2c-716dba)
+![ver](https://img.shields.io/badge/taikari-v0.6.2-blue) ![arc](https://img.shields.io/badge/arcaea-4.0.0c-716dba)
 
 ## Hack Tool Sets
 | name | description |
