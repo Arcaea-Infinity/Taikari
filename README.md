@@ -12,7 +12,7 @@
   </tbody>
 </table>
 
-![ver](https://img.shields.io/badge/taikari-v0.6.2-blue) ![arc](https://img.shields.io/badge/arcaea-4.0.1c-716dba)
+![ver](https://img.shields.io/badge/taikari-v0.6.2-blue) ![arc](https://img.shields.io/badge/arcaea-4.0.255c-716dba)
 
 ## Hack Tool Sets
 | name | description |
@@ -49,7 +49,7 @@ $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
 | 3.12.6c_1032000   | 🟡          | ❌ (lazy)     | ❌    | ❌      |
 | 4.0.0c_1050010    | ❌ (wip)    | 🟡            | ❌    | ❌      |
 | 4.0.1c_1050014    | ❌ (wip)    | 🟡            | ❌    | ❌      |
-| 4.0.255c_1060002  | ❌ (wip)    | ❌(wip)       | ❌    | ❌      |
+| 4.0.255c_1060002  | ❌ (wip)    | 🟡            | ❌    | ❌      |
 
 ## License
 Licensed under `616 SB License`.
