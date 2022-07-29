@@ -50,6 +50,7 @@ $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
 | 4.0.0c_1050010    | 🟡 (wip)    | 🟡 (wip)      | ❌    | ❌      |
 | 4.0.1c_1050014    | 🟡 (wip)    | 🟡 (wip)      | ❌    | ❌      |
 | 4.0.255c_1060002  | 🟡 (wip)    | 🟡 (wip)      | ❌    | ❌      |
+| 4.0.256c_1070001  | ❌          | 🟡            | ❌    | ❌      |
 
 ## License
 Licensed under `616 SB License`.
