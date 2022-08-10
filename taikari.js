@@ -119,14 +119,14 @@ const config = {
     ],
     '4.0.0c_1050010_arm64-v8a' : [//wip
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0x788fbc },
-      //{ name: 'libcocos2dcpp.so!easy_perform', proc:  }, // fastcall: sub_CB2768; func(easy handle already used...): sub_D80818
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0xcb2768 },
       //{ name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc:  },
       //{ name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc:  },
       //{ name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc:  }
     ],
     '4.0.1c_1050014_arm64-v8a': [//wip
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xa15c48 },
-      //{ name: 'libcocos2dcpp.so!easy_perform', proc:  },// fastcall: sub_CDA784; func(easy handle already used...): sub_CF479C
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0xcda784 },
       //{ name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc:  }, 
       //{ name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc:  },
       //{ name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc:  }
@@ -140,7 +140,7 @@ const config = {
     ],
     '4.0.255c_1060002_arm64-v8a': [//wip
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xb4f734 },
-      //{ name: 'libcocos2dcpp.so!easy_perform', proc:  },// 
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0x91166c },// 
       //{ name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc:  }, 
       //{ name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc:  },
       //{ name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc:  }
