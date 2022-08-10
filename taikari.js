@@ -154,7 +154,7 @@ const config = {
     ],
     '4.0.256c_1070001_arm64-v8a' : [ //wip
       { name: 'libcocos2dcpp.so!curl_easy_setopt', proc: 0xc81d44 },
-      { name: 'libcocos2dcpp.so!easy_perform', proc: 0xb30a88 },//untested
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0xb30a88 },
      // { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc:  }, 
      // { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc:  },
      // { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc:  } 
