@@ -12,7 +12,7 @@
   </tbody>
 </table>
 
-![ver](https://img.shields.io/badge/taikari-v0.6.2-blue) ![arc](https://img.shields.io/badge/arcaea-4.0.256c-716dba)
+![ver](https://img.shields.io/badge/taikari-v0.6.2-blue) ![arc](https://img.shields.io/badge/arcaea-4.1.4c-716dba)
 
 ## Hack Tool Sets
 | name | description |
@@ -33,6 +33,8 @@
 > Recommend to use Frida 15 and Android 7+.
 ```bash
 $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
+
+# Optional for Frida 16: frida -U -f "moe.low.arc" -l taikari.js
   # -U (use USB device)
   # -f (spawn the target app)
   # --no-pause (do not pause the thread while app start)
@@ -47,10 +49,11 @@ $ frida -U -f "moe.low.arc" --no-pause -l taikari.js
 | 3.12.1c_1020010   | ✔             | ✔             | ❌    | ❌      |
 | 3.12.2c_1020517   | ✔             | ✔             | ❌    | ❌      |
 | 3.12.6c_1032000   | 🟡            | ❌ (lazy)     | ❌    | ❌      |
-| 4.0.0c_1050010    | 🟡 (wip)      | ✔       | ❌    | ❌      |
-| 4.0.1c_1050014    | 🟡 (wip)      | ✔       | ❌    | ❌      |
-| 4.0.255c_1060002  | 🟡 (wip)      | ✔       | ❌    | ❌      |
-| 4.0.256c_1070001  | 🟡 (wip)      | ✔       | ❌    | ❌      |
+| 4.0.0c_1050010    | 🟡 (wip)      | ✔             | ❌    | ❌      |
+| 4.0.1c_1050014    | 🟡 (wip)      | ✔             | ❌    | ❌      |
+| 4.0.255c_1060002  | 🟡 (wip)      | ✔             | ❌    | ❌      |
+| 4.0.256c_1070001  | 🟡 (wip)      | ✔             | ❌    | ❌      |
+| 4.1.4c_1092003    | ❌ (lazy)     | ✔             | ❌    | ❌      |
 
 ## License
 Licensed under `616 SB License`.
