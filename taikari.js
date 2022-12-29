@@ -165,10 +165,16 @@ const config = {
      // { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc:  }, 
      // { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc:  },
      // { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: } 
+    ], // idk just test lmao
+    '4.1.9c_1095000_armeabi-v7a' : [
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc:0x962390 },
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0x6f2094 },
+      { name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc: 0x79e198 }, 
+      { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x64a170 },
+      { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x79e198}
     ],
   }
 };
-
 // save original functions
 const __console_log = console.log;
 const __console_error = console.error;
