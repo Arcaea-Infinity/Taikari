@@ -173,6 +173,13 @@ const config = {
   //    { name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc: 0x64a170 },
      // { name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: 0x79e198}
     ],
+    '4.3.2c_1098002_arm64-v8a' : [
+      { name: 'libcocos2dcpp.so!curl_easy_setopt', proc:0x638ff8 },
+      { name: 'libcocos2dcpp.so!easy_perform', proc: 0x83ee6c },
+      //{ name: 'libcocos2dcpp.so!OnlineManager::OnlineManager', proc:  }, 
+      //{ name: 'libcocos2dcpp.so!OnlineManager::sendHttpRequest', proc:  },
+      //{ name: 'libcocos2dcpp.so!OnlineManager::setFavoriteCharacter', proc: }
+    ],
   }
 };
 // save original functions
